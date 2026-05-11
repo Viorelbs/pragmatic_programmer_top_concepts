@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pragmatic Programmer&nbsp;10 Core Principles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:         #0d1117;
+    --surface:    #161b22;
+    --surface2:   #1c2128;
+    --border:     #30363d;
+    --border-sub: #21262d;
+    --teal:       #38bdf8;
+    --teal-dim:   #0ea5e9;
+    --teal-glow:  rgba(56,189,248,0.12);
+    --teal-glow2: rgba(56,189,248,0.06);
+    --green:      #34d399;
+    --amber:      #fbbf24;
+    --violet:     #a78bfa;
+    --red:        #f87171;
+    --white:      #f0f6fc;
+    --text:       #c9d1d9;
+    --muted:      #6e7681;
+    --code-bg:    #010409;
+    --font-display: 'Syne', sans-serif;
+    --font-body:    'DM Sans', sans-serif;
+    --font-mono:    'JetBrains Mono', monospace;
+    --radius:     12px;
+    --radius-sm:  6px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--teal); color: var(--bg); }
+
+  /* ── Scrollbar ────────────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+  /* ── Noise texture overlay ────────────────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── Nav ──────────────────────────────────────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    height: 60px;
+    background: rgba(13,17,23,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-sub);
+  }
+
+  .nav-brand {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--teal);
+    box-shadow: 0 0 8px var(--teal);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .nav-pills {
+    display: flex; gap: 4px;
+  }
+  .nav-pill {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+    text-decoration: none;
+  }
+  .nav-pill:hover, .nav-pill.active {
+    background: var(--teal-glow);
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 120px 48px 80px;
+    overflow: hidden;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(56,189,248,0.15) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-glow2 {
+    position: absolute;
+    bottom: -100px; left: 20%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  .hero-left { display: flex; flex-direction: column; justify-content: center; }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--teal);
+    background: var(--teal-glow);
+    border: 1px solid rgba(56,189,248,0.25);
+    border-radius: 99px;
+    padding: 5px 14px;
+    margin-bottom: 28px;
+    width: fit-content;
+    letter-spacing: 0.06em;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(52px, 7vw, 84px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+
+  .hero-title span { color: var(--teal); }
+
+  .hero-desc {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+
+  .hero-cta {
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--teal);
+    color: var(--bg);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+    letter-spacing: -0.01em;
+  }
+  .btn-primary:hover {
+    background: #7dd3fc;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(56,189,248,0.3);
+  }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* Hero right: principle index cards */
+  .hero-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .index-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: all 0.18s;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+  .index-card:hover {
+    background: var(--surface);
+    border-color: var(--border);
+  }
+  .index-card:hover .ic-num { color: var(--teal); }
+  .index-card:hover .ic-arrow { opacity: 1; transform: translateX(0); }
+
+  .ic-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 28px;
+    transition: color 0.18s;
+  }
+  .ic-bar {
+    width: 3px;
+    height: 28px;
+    border-radius: 99px;
+    flex-shrink: 0;
+  }
+  .ic-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--white);
+    flex: 1;
+  }
+  .ic-arrow {
+    font-size: 12px;
+    color: var(--teal);
+    opacity: 0;
+    transform: translateX(-6px);
+    transition: all 0.18s;
+  }
+
+  /* ── Section wrapper ──────────────────────────────────────────────────── */
+  .principles-section {
+    padding: 0 48px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 64px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-label span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  /* ── Principle Card ───────────────────────────────────────────────────── */
+  .principle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-bottom: 2px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.3s;
+  }
+  .principle.visible { opacity: 1; transform: translateY(0); }
+  .principle:hover { box-shadow: 0 0 0 1px var(--teal), 0 8px 40px rgba(56,189,248,0.06); }
+  .principle + .principle { margin-top: 20px; }
+
+  /* Alternate: odd cards have code on left */
+  .principle.flip { direction: rtl; }
+  .principle.flip > * { direction: ltr; }
+
+  /* Content side */
+  .p-content {
+    padding: 52px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 32px;
+    border-right: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .principle.flip .p-content { border-right: none; border-left: 1px solid var(--border); }
+
+  .p-content::before {
+    content: attr(data-num);
+    position: absolute;
+    top: -20px; right: -10px;
+    font-family: var(--font-display);
+    font-size: 140px;
+    font-weight: 800;
+    color: var(--teal-glow2);
+    line-height: 1;
+    pointer-events: none;
+    letter-spacing: -0.06em;
+    user-select: none;
+  }
+
+  .p-top {}
+
+  .p-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 99px;
+    margin-bottom: 20px;
+    width: fit-content;
+    letter-spacing: 0.05em;
+  }
+
+  .p-title {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: 18px;
+  }
+
+  .p-body {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .p-note {
+    display: flex; gap: 12px;
+    background: rgba(56,189,248,0.05);
+    border: 1px solid rgba(56,189,248,0.15);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .p-note-icon { color: var(--teal); flex-shrink: 0; margin-top: 1px; }
+
+  .p-takeaway {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: rgba(251,191,36,0.06);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+  }
+  .p-takeaway-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .p-takeaway-text {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .p-takeaway-label {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    margin-bottom: 5px;
+  }
+
+  /* Code side */
+  .p-code {
+    background: var(--code-bg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .code-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-sub);
+    background: #0d1117;
+    flex-shrink: 0;
+  }
+
+  .code-dots { display: flex; gap: 7px; }
+  .code-dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+  }
+  .code-dot.red    { background: #ff5f57; }
+  .code-dot.yellow { background: #febc2e; }
+  .code-dot.green  { background: #28c840; }
+
+  .code-filename {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  .code-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  table.code-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+  }
+  .ln {
+    width: 44px;
+    text-align: right;
+    padding: 0 16px 0 20px;
+    color: var(--muted);
+    user-select: none;
+    vertical-align: top;
+    border-right: 1px solid var(--border-sub);
+    font-size: 11px;
+  }
+  .lc {
+    padding: 0 24px;
+    white-space: pre;
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  /* Syntax tokens */
+  .tk-cm  { color: #6e7681; font-style: italic; }
+  .tk-kw  { color: #ff7b72; }
+  .tk-fn  { color: #79c0ff; }
+  .tk-str { color: #a5d6ff; }
+  .tk-num { color: #f2cc60; }
+  .tk-op  { color: #6e7681; }
+  .tk-tl  { color: #38bdf8; }
+
+  /* ── Closing ──────────────────────────────────────────────────────────── */
+  .closing {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 100px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .closing::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(56,189,248,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .closing-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--teal);
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+  }
+
+  .closing-title {
+    font-family: var(--font-display);
+    font-size: 52px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.04em;
+    margin-bottom: 16px;
+    line-height: 1.05;
+  }
+
+  .closing-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 52px;
+    line-height: 1.7;
+  }
+
+  .closing-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .closing-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .closing-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .closing-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .closing-card:nth-child(1)::before { background: var(--teal); }
+  .closing-card:nth-child(2)::before { background: var(--green); }
+  .closing-card:nth-child(3)::before { background: var(--violet); }
+  .closing-card:nth-child(4)::before { background: var(--amber); }
+
+  .cc-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .cc-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .cc-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .closing-quote {
+    margin-top: 64px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ── Animations ───────────────────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow { animation: fadeUp 0.6s ease both; }
+  .hero-title   { animation: fadeUp 0.6s 0.1s ease both; }
+  .hero-desc    { animation: fadeUp 0.6s 0.2s ease both; }
+  .hero-cta     { animation: fadeUp 0.6s 0.3s ease both; }
+  .hero-right   { animation: fadeUp 0.7s 0.2s ease both; }
+
+  /* ── Responsive ───────────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-pills { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-right { display: none; }
+    .principles-section { padding: 0 24px 80px; }
+    .principle, .principle.flip { grid-template-columns: 1fr; direction: ltr; }
+    .p-content { border-right: none; border-bottom: 1px solid var(--border); }
+    .principle.flip .p-content { border-left: none; border-bottom: 1px solid var(--border); }
+    .closing { padding: 60px 24px; }
+    .closing-cards { grid-template-columns: 1fr 1fr; }
+    .closing-title { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Nav ──────────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-dot"></div>
+    Pragmatic Programmer
+  </div>
+  <div class="nav-pills">
+    <a href="#p1"  class="nav-pill">01</a>
+    <a href="#p2"  class="nav-pill">02</a>
+    <a href="#p3"  class="nav-pill">03</a>
+    <a href="#p4"  class="nav-pill">04</a>
+    <a href="#p5"  class="nav-pill">05</a>
+    <a href="#p6"  class="nav-pill">06</a>
+    <a href="#p7"  class="nav-pill">07</a>
+    <a href="#p8"  class="nav-pill">08</a>
+    <a href="#p9"  class="nav-pill">09</a>
+    <a href="#p10" class="nav-pill">10</a>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-grid">
+
+    <div class="hero-left">
+      <div class="hero-eyebrow">⚡ Developer Principles</div>
+      <h1 class="hero-title">10 Core<br><span>Principles</span></h1>
+      <p class="hero-desc">Lessons from The Pragmatic Programmer&nbsp;the book that changed how developers think about their craft. Not rules. A mindset.</p>
+      <div class="hero-cta">
+        <a href="#principles" class="btn-primary">Start Reading ↓</a>
+        <a href="#closing"    class="btn-ghost">Summary</a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <a href="#p1"  class="index-card"><span class="ic-num">01</span><span class="ic-bar" style="background:#38bdf8"></span><span class="ic-title">Care About Your Craft</span><span class="ic-arrow">→</span></a>
+      <a href="#p2"  class="index-card"><span class="ic-num">02</span><span class="ic-bar" style="background:#34d399"></span><span class="ic-title">DRY&nbsp;Don't Repeat Yourself</span><span class="ic-arrow">→</span></a>
+      <a href="#p3"  class="index-card"><span class="ic-num">03</span><span class="ic-bar" style="background:#a78bfa"></span><span class="ic-title">Orthogonality</span><span class="ic-arrow">→</span></a>
+      <a href="#p4"  class="index-card"><span class="ic-num">04</span><span class="ic-bar" style="background:#f87171"></span><span class="ic-title">Tracer Bullets</span><span class="ic-arrow">→</span></a>
+      <a href="#p5"  class="index-card"><span class="ic-num">05</span><span class="ic-bar" style="background:#fbbf24"></span><span class="ic-title">The Broken Windows Theory</span><span class="ic-arrow">→</span></a>
+      <a href="#p6"  class="index-card"><span class="ic-num">06</span><span class="ic-bar" style="background:#38bdf8"></span><span class="ic-title">Be a Catalyst for Change</span><span class="ic-arrow">→</span></a>
+      <a href="#p7"  class="index-card"><span class="ic-num">07</span><span class="ic-bar" style="background:#34d399"></span><span class="ic-title">Know Your Tools Deeply</span><span class="ic-arrow">→</span></a>
+      <a href="#p8"  class="index-card"><span class="ic-num">08</span><span class="ic-bar" style="background:#a78bfa"></span><span class="ic-title">Design with Contracts</span><span class="ic-arrow">→</span></a>
+      <a href="#p9"  class="index-card"><span class="ic-num">09</span><span class="ic-bar" style="background:#f87171"></span><span class="ic-title">Estimate Everything</span><span class="ic-arrow">→</span></a>
+      <a href="#p10" class="index-card"><span class="ic-num">10</span><span class="ic-bar" style="background:#fbbf24"></span><span class="ic-title">Rubber Ducking</span><span class="ic-arrow">→</span></a>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Principles ────────────────────────────────────────────────────────── -->
+<div class="principles-section" id="principles">
+
+  <div class="section-label"><span>// PRINCIPLES</span></div>
+
+  <!-- 01 -->
+  <article class="principle" id="p1">
+    <div class="p-content" data-num="01">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(56,189,248,.1);color:#38bdf8;border:1px solid rgba(56,189,248,.25)">● 01 / CRAFT</div>
+        <h2 class="p-title">Care About<br>Your Craft</h2>
+        <p class="p-body">Take responsibility for the quality of what you produce. Leave code cleaner than you found it, ask questions when requirements are vague, and never ship something you know is broken.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">You can only get good at your craft by caring about it every single day&nbsp;not just when someone is watching.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">user.js</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// Bad: SQL injection risk&nbsp;"it works"</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">getUser</span>(id) {</td></tr>
+          <tr><td class="ln">3</td><td class="lc">  <span class="tk-kw">return</span> db.<span class="tk-fn">query</span>(</td></tr>
+          <tr><td class="ln">4</td><td class="lc">    <span class="tk-str">"SELECT * FROM users WHERE id="</span> + id</td></tr>
+          <tr><td class="ln">5</td><td class="lc">  );</td></tr>
+          <tr><td class="ln">6</td><td class="lc">}</td></tr>
+          <tr><td class="ln">7</td><td class="lc"></td></tr>
+          <tr><td class="ln">8</td><td class="lc"><span class="tk-cm">// Good: you own this code</span></td></tr>
+          <tr><td class="ln">9</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">getUser</span>(id) {</td></tr>
+          <tr><td class="ln">10</td><td class="lc">  <span class="tk-kw">if</span> (!Number.<span class="tk-fn">isInteger</span>(id))</td></tr>
+          <tr><td class="ln">11</td><td class="lc">    <span class="tk-kw">throw new</span> Error(<span class="tk-str">"Invalid ID"</span>);</td></tr>
+          <tr><td class="ln">12</td><td class="lc"></td></tr>
+          <tr><td class="ln">13</td><td class="lc">  <span class="tk-kw">return</span> db.<span class="tk-fn">query</span>(</td></tr>
+          <tr><td class="ln">14</td><td class="lc">    <span class="tk-str">"SELECT * FROM users WHERE id = ?"</span>,</td></tr>
+          <tr><td class="ln">15</td><td class="lc">    [id]</td></tr>
+          <tr><td class="ln">16</td><td class="lc">  );</td></tr>
+          <tr><td class="ln">17</td><td class="lc">}</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 02 -->
+  <article class="principle flip" id="p2">
+    <div class="p-content" data-num="02">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25)">● 02 / DRY</div>
+        <h2 class="p-title">Don't Repeat<br>Yourself</h2>
+        <p class="p-body">Every piece of knowledge&nbsp;business logic, data structures, documentation&nbsp;should exist in exactly one place. Duplicating knowledge creates a maintenance trap: change it in one place, forget another, bugs appear.</p>
+        <div class="p-note">
+          <span class="p-note-icon">ℹ</span>
+          <span>DRY is about knowledge, not textual similarity. Two similar-looking functions can be fine if they encode different concepts.</span>
+        </div>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">When business rules change (and they will), DRY means you change it once&nbsp;not hunt through 40 files.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">discounts.js</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// VIOLATION: logic in 3 places</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc">price = price * <span class="tk-num">0.9</span>;  <span class="tk-cm">// checkout.js</span></td></tr>
+          <tr><td class="ln">3</td><td class="lc">total = total * <span class="tk-num">0.9</span>;  <span class="tk-cm">// cart.js</span></td></tr>
+          <tr><td class="ln">4</td><td class="lc">amount = amount * <span class="tk-num">0.9</span>; <span class="tk-cm">// invoice.js</span></td></tr>
+          <tr><td class="ln">5</td><td class="lc"></td></tr>
+          <tr><td class="ln">6</td><td class="lc"><span class="tk-cm">// ─────────────────────────────</span></td></tr>
+          <tr><td class="ln">7</td><td class="lc"></td></tr>
+          <tr><td class="ln">8</td><td class="lc"><span class="tk-cm">// DRY: one source of truth</span></td></tr>
+          <tr><td class="ln">9</td><td class="lc"><span class="tk-cm">// config/discounts.js</span></td></tr>
+          <tr><td class="ln">10</td><td class="lc"><span class="tk-kw">export const</span> <span class="tk-tl">MEMBER_DISCOUNT</span> = <span class="tk-num">0.10</span>;</td></tr>
+          <tr><td class="ln">11</td><td class="lc"></td></tr>
+          <tr><td class="ln">12</td><td class="lc"><span class="tk-cm">// everywhere else</span></td></tr>
+          <tr><td class="ln">13</td><td class="lc"><span class="tk-kw">import</span> { <span class="tk-tl">MEMBER_DISCOUNT</span> } <span class="tk-kw">from</span></td></tr>
+          <tr><td class="ln">14</td><td class="lc">  <span class="tk-str">'./config/discounts'</span>;</td></tr>
+          <tr><td class="ln">15</td><td class="lc"></td></tr>
+          <tr><td class="ln">16</td><td class="lc">price = price * (<span class="tk-num">1</span> - <span class="tk-tl">MEMBER_DISCOUNT</span>);</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 03 -->
+  <article class="principle" id="p3">
+    <div class="p-content" data-num="03">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.25)">● 03 / ARCHITECTURE</div>
+        <h2 class="p-title">Orthogonality</h2>
+        <p class="p-body">Two components are orthogonal if changing one has zero effect on the other. Your database layer should know nothing about your UI. Your auth module should not care about logging. Non-orthogonal systems are where bugs and fear of refactoring come from.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">If you can change one module without touching any other&nbsp;your system is orthogonal. That's the goal.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">profile.js</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// Non-orthogonal: UI knows SQL</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">renderUserProfile</span>(userId) {</td></tr>
+          <tr><td class="ln">3</td><td class="lc">  <span class="tk-kw">const</span> user = db.<span class="tk-fn">query</span>(</td></tr>
+          <tr><td class="ln">4</td><td class="lc">    <span class="tk-str">"SELECT * FROM users WHERE id=?"</span>,</td></tr>
+          <tr><td class="ln">5</td><td class="lc">    [userId]</td></tr>
+          <tr><td class="ln">6</td><td class="lc">  );</td></tr>
+          <tr><td class="ln">7</td><td class="lc">  document.<span class="tk-fn">getElementById</span>(<span class="tk-str">"name"</span>)</td></tr>
+          <tr><td class="ln">8</td><td class="lc">    .textContent = user.name;</td></tr>
+          <tr><td class="ln">9</td><td class="lc">}</td></tr>
+          <tr><td class="ln">10</td><td class="lc"></td></tr>
+          <tr><td class="ln">11</td><td class="lc"><span class="tk-cm">// Orthogonal: layers separated</span></td></tr>
+          <tr><td class="ln">12</td><td class="lc"><span class="tk-kw">async function</span> <span class="tk-fn">fetchUser</span>(userId) {</td></tr>
+          <tr><td class="ln">13</td><td class="lc">  <span class="tk-kw">return</span> api.<span class="tk-fn">get</span>(<span class="tk-str">`/users/${userId}`</span>);</td></tr>
+          <tr><td class="ln">14</td><td class="lc">}</td></tr>
+          <tr><td class="ln">15</td><td class="lc"><span class="tk-kw">async function</span> <span class="tk-fn">renderUserProfile</span>(userId) {</td></tr>
+          <tr><td class="ln">16</td><td class="lc">  <span class="tk-kw">const</span> user = <span class="tk-kw">await</span> <span class="tk-fn">fetchUser</span>(userId);</td></tr>
+          <tr><td class="ln">17</td><td class="lc">  document.<span class="tk-fn">getElementById</span>(<span class="tk-str">"name"</span>)</td></tr>
+          <tr><td class="ln">18</td><td class="lc">    .textContent = user.name;</td></tr>
+          <tr><td class="ln">19</td><td class="lc">}</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 04 -->
+  <article class="principle flip" id="p4">
+    <div class="p-content" data-num="04">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.25)">● 04 / DELIVERY</div>
+        <h2 class="p-title">Tracer Bullets</h2>
+        <p class="p-body">A thin slice of real, production-quality code that goes end-to-end through the entire system&nbsp;even if empty. Unlike prototypes (which you throw away), tracer code stays. It gives your team something working to react to, early.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">Ship something real that touches every layer first. You'll catch architecture mistakes early, not in month six.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">orders.jsx</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// Sprint 1: whole stack, minimal</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"></td></tr>
+          <tr><td class="ln">3</td><td class="lc"><span class="tk-cm">// Route exists</span></td></tr>
+          <tr><td class="ln">4</td><td class="lc">app.<span class="tk-fn">get</span>(<span class="tk-str">'/api/orders'</span>, (req, res) => {</td></tr>
+          <tr><td class="ln">5</td><td class="lc">  res.<span class="tk-fn">json</span>([]); <span class="tk-cm">// empty for now</span></td></tr>
+          <tr><td class="ln">6</td><td class="lc">});</td></tr>
+          <tr><td class="ln">7</td><td class="lc"></td></tr>
+          <tr><td class="ln">8</td><td class="lc"><span class="tk-cm">// UI renders</span></td></tr>
+          <tr><td class="ln">9</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">OrderList</span>({ orders }) {</td></tr>
+          <tr><td class="ln">10</td><td class="lc">  <span class="tk-kw">return</span> (</td></tr>
+          <tr><td class="ln">11</td><td class="lc">    &lt;ul&gt;</td></tr>
+          <tr><td class="ln">12</td><td class="lc">      {orders.<span class="tk-fn">map</span>(o => &lt;li&gt;{o.id}&lt;/li&gt;)}</td></tr>
+          <tr><td class="ln">13</td><td class="lc">    &lt;/ul&gt;</td></tr>
+          <tr><td class="ln">14</td><td class="lc">  );</td></tr>
+          <tr><td class="ln">15</td><td class="lc">}</td></tr>
+          <tr><td class="ln">16</td><td class="lc"></td></tr>
+          <tr><td class="ln">17</td><td class="lc"><span class="tk-cm">// Auth + DB + Deploy all wired in.</span></td></tr>
+          <tr><td class="ln">18</td><td class="lc"><span class="tk-cm">// Now iterate: the skeleton is right.</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 05 -->
+  <article class="principle" id="p5">
+    <div class="p-content" data-num="05">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25)">● 05 / QUALITY</div>
+        <h2 class="p-title">The Broken<br>Windows Theory</h2>
+        <p class="p-body">One broken window signals that standards don't matter&nbsp;more hacks follow. When code quality starts degrading, fix broken windows immediately or board them up with a comment and a ticket. Never let rot normalize.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">Code quality is a social contract. Once you let it slip, everyone assumes slipping is acceptable.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">cart.js</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// The broken window</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">calculateTotal</span>(items) {</td></tr>
+          <tr><td class="ln">3</td><td class="lc">  <span class="tk-kw">let</span> tax = <span class="tk-num">0.19</span>; <span class="tk-cm">// TODO: fix later</span></td></tr>
+          <tr><td class="ln">4</td><td class="lc">  <span class="tk-cm">// 6 months pass. Nobody fixes it.</span></td></tr>
+          <tr><td class="ln">5</td><td class="lc">}</td></tr>
+          <tr><td class="ln">6</td><td class="lc"></td></tr>
+          <tr><td class="ln">7</td><td class="lc"><span class="tk-cm">// Six months later:</span></td></tr>
+          <tr><td class="ln">8</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">applyDiscount</span>(price) {</td></tr>
+          <tr><td class="ln">9</td><td class="lc">  <span class="tk-cm">// whole file is messy anyway</span></td></tr>
+          <tr><td class="ln">10</td><td class="lc">  <span class="tk-kw">if</span> (price > <span class="tk-num">100</span>) price = price - <span class="tk-num">10</span>;</td></tr>
+          <tr><td class="ln">11</td><td class="lc">  <span class="tk-kw">return</span> price * <span class="tk-num">0.95</span>; <span class="tk-cm">// double discount?</span></td></tr>
+          <tr><td class="ln">12</td><td class="lc">}</td></tr>
+          <tr><td class="ln">13</td><td class="lc"></td></tr>
+          <tr><td class="ln">14</td><td class="lc"><span class="tk-cm">// Fix it immediately:</span></td></tr>
+          <tr><td class="ln">15</td><td class="lc"><span class="tk-kw">const</span> <span class="tk-tl">TAX_RATE</span> = config.<span class="tk-fn">get</span>(<span class="tk-str">'TAX_RATE'</span>);</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 06 -->
+  <article class="principle flip" id="p6">
+    <div class="p-content" data-num="06">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(56,189,248,.1);color:#38bdf8;border:1px solid rgba(56,189,248,.25)">● 06 / LEADERSHIP</div>
+        <h2 class="p-title">Be a Catalyst<br>for Change</h2>
+        <p class="p-body">Don't pitch ideas in Slack and wait. Start it yourself. Show a working proof of concept. People contribute to things they can see and touch, not abstract proposals. Prototypes and demos recruit allies far better than meetings.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">Working software is the most persuasive argument. Build the stone soup&nbsp;others will add ingredients.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">user.ts</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// Instead of: "We should adopt TypeScript"</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"><span class="tk-cm">// in Slack, no traction for 6 months...</span></td></tr>
+          <tr><td class="ln">3</td><td class="lc"></td></tr>
+          <tr><td class="ln">4</td><td class="lc"><span class="tk-cm">// You: convert one module quietly.</span></td></tr>
+          <tr><td class="ln">5</td><td class="lc"></td></tr>
+          <tr><td class="ln">6</td><td class="lc"><span class="tk-kw">interface</span> <span class="tk-fn">User</span> {</td></tr>
+          <tr><td class="ln">7</td><td class="lc">  id: <span class="tk-tl">number</span>;</td></tr>
+          <tr><td class="ln">8</td><td class="lc">  name: <span class="tk-tl">string</span>;</td></tr>
+          <tr><td class="ln">9</td><td class="lc">  email: <span class="tk-tl">string</span>;</td></tr>
+          <tr><td class="ln">10</td><td class="lc">}</td></tr>
+          <tr><td class="ln">11</td><td class="lc"></td></tr>
+          <tr><td class="ln">12</td><td class="lc"><span class="tk-kw">export function</span> <span class="tk-fn">getDisplayName</span>(user: <span class="tk-fn">User</span>): <span class="tk-tl">string</span> {</td></tr>
+          <tr><td class="ln">13</td><td class="lc">  <span class="tk-kw">return</span> <span class="tk-str">`${user.name} &lt;${user.email}&gt;`</span>;</td></tr>
+          <tr><td class="ln">14</td><td class="lc">}</td></tr>
+          <tr><td class="ln">15</td><td class="lc"></td></tr>
+          <tr><td class="ln">16</td><td class="lc"><span class="tk-cm">// "Caught 3 bugs. Now they want in."</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 07 -->
+  <article class="principle" id="p7">
+    <div class="p-content" data-num="07">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(52,211,153,.1);color:#34d399;border:1px solid rgba(52,211,153,.25)">● 07 / MASTERY</div>
+        <h2 class="p-title">Know Your<br>Tools Deeply</h2>
+        <p class="p-body">Pragmatic programmers invest in mastering their tools: editor, shell, debugger, version control, profiler. Not just basic usage&nbsp;shortcuts, power features, scripting. Your tools should be an extension of thought.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">Invest 15 minutes a week learning one new thing about a tool you use daily. In a year, you'll operate at a different level.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">terminal</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm"># Most devs know: git commit, git push</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"><span class="tk-cm"># Pragmatic programmers also know:</span></td></tr>
+          <tr><td class="ln">3</td><td class="lc"></td></tr>
+          <tr><td class="ln">4</td><td class="lc"><span class="tk-cm"># Rewrite last 5 commits interactively</span></td></tr>
+          <tr><td class="ln">5</td><td class="lc"><span class="tk-tl">git</span> rebase -i HEAD~<span class="tk-num">5</span></td></tr>
+          <tr><td class="ln">6</td><td class="lc"></td></tr>
+          <tr><td class="ln">7</td><td class="lc"><span class="tk-cm"># Find which commit introduced a bug</span></td></tr>
+          <tr><td class="ln">8</td><td class="lc"><span class="tk-tl">git</span> bisect start</td></tr>
+          <tr><td class="ln">9</td><td class="lc"><span class="tk-tl">git</span> bisect bad HEAD</td></tr>
+          <tr><td class="ln">10</td><td class="lc"><span class="tk-tl">git</span> bisect good v1.2.0</td></tr>
+          <tr><td class="ln">11</td><td class="lc"></td></tr>
+          <tr><td class="ln">12</td><td class="lc"><span class="tk-cm"># Stash only staged changes</span></td></tr>
+          <tr><td class="ln">13</td><td class="lc"><span class="tk-tl">git</span> stash push --staged</td></tr>
+          <tr><td class="ln">14</td><td class="lc"></td></tr>
+          <tr><td class="ln">15</td><td class="lc"><span class="tk-cm"># Search all commits for a string</span></td></tr>
+          <tr><td class="ln">16</td><td class="lc"><span class="tk-tl">git</span> log -S <span class="tk-str">"calculateDiscount"</span> --source --all</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 08 -->
+  <article class="principle flip" id="p8">
+    <div class="p-content" data-num="08">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.25)">● 08 / RELIABILITY</div>
+        <h2 class="p-title">Design with<br>Contracts</h2>
+        <p class="p-body">Every function makes a deal. Make that deal explicit in the code&nbsp;as assertions and checks&nbsp;so when someone breaks the deal, the code fails immediately at the violation site. Not three layers deep in some unrelated crash.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">When you make contracts explicit, bugs surface at the violation site&nbsp;not three layers deep where they're invisible.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">math.js</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// No contract: mystery failures</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">divide</span>(a, b) {</td></tr>
+          <tr><td class="ln">3</td><td class="lc">  <span class="tk-kw">return</span> a / b; <span class="tk-cm">// b could be 0, null, "x"</span></td></tr>
+          <tr><td class="ln">4</td><td class="lc">}</td></tr>
+          <tr><td class="ln">5</td><td class="lc"></td></tr>
+          <tr><td class="ln">6</td><td class="lc"><span class="tk-cm">// With contract</span></td></tr>
+          <tr><td class="ln">7</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">divide</span>(a, b) {</td></tr>
+          <tr><td class="ln">8</td><td class="lc">  console.<span class="tk-fn">assert</span>(</td></tr>
+          <tr><td class="ln">9</td><td class="lc">    <span class="tk-kw">typeof</span> a === <span class="tk-str">'number'</span> && <span class="tk-fn">isFinite</span>(a),</td></tr>
+          <tr><td class="ln">10</td><td class="lc">    <span class="tk-str">'a must be a finite number'</span></td></tr>
+          <tr><td class="ln">11</td><td class="lc">  );</td></tr>
+          <tr><td class="ln">12</td><td class="lc">  console.<span class="tk-fn">assert</span>(</td></tr>
+          <tr><td class="ln">13</td><td class="lc">    <span class="tk-kw">typeof</span> b === <span class="tk-str">'number'</span> && b !== <span class="tk-num">0</span>,</td></tr>
+          <tr><td class="ln">14</td><td class="lc">    <span class="tk-str">'b must be non-zero'</span></td></tr>
+          <tr><td class="ln">15</td><td class="lc">  );</td></tr>
+          <tr><td class="ln">16</td><td class="lc">  <span class="tk-kw">const</span> result = a / b;</td></tr>
+          <tr><td class="ln">17</td><td class="lc">  console.<span class="tk-fn">assert</span>(<span class="tk-fn">isFinite</span>(result), <span class="tk-str">'result finite'</span>);</td></tr>
+          <tr><td class="ln">18</td><td class="lc">  <span class="tk-kw">return</span> result;</td></tr>
+          <tr><td class="ln">19</td><td class="lc">}</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 09 -->
+  <article class="principle" id="p9">
+    <div class="p-content" data-num="09">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(248,113,113,.1);color:#f87171;border:1px solid rgba(248,113,113,.25)">● 09 / PROCESS</div>
+        <h2 class="p-title">Estimate<br>Everything</h2>
+        <p class="p-body">Good developers don't freeze when asked "how long will this take?" Break the work into pieces, spot the risky unknowns, and give an honest range. Write down your estimates, then check them when done&nbsp;that feedback loop turns guessing into knowing.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">Estimates given as ranges with named risks are honest. Single numbers are wishful thinking.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">estimates.md</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// Bad: "It'll take 2 weeks" (pure guess)</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"></td></tr>
+          <tr><td class="ln">3</td><td class="lc"><span class="tk-cm">// Good: optimistic / likely / pessimistic</span></td></tr>
+          <tr><td class="ln">4</td><td class="lc"></td></tr>
+          <tr><td class="ln">5</td><td class="lc"><span class="tk-tl">Feature: Payment Integration</span></td></tr>
+          <tr><td class="ln">6</td><td class="lc">  Research Stripe API    <span class="tk-num">1d</span> / <span class="tk-num">1d</span> / <span class="tk-num">2d</span></td></tr>
+          <tr><td class="ln">7</td><td class="lc">  Checkout flow         <span class="tk-num">2d</span> / <span class="tk-num">3d</span> / <span class="tk-num">5d</span></td></tr>
+          <tr><td class="ln">8</td><td class="lc">  Handle webhooks       <span class="tk-num">1d</span> / <span class="tk-num">2d</span> / <span class="tk-num">3d</span></td></tr>
+          <tr><td class="ln">9</td><td class="lc">  Error handling        <span class="tk-num">1d</span> / <span class="tk-num">2d</span> / <span class="tk-num">4d</span></td></tr>
+          <tr><td class="ln">10</td><td class="lc">  Write tests           <span class="tk-num">1d</span> / <span class="tk-num">2d</span> / <span class="tk-num">3d</span></td></tr>
+          <tr><td class="ln">11</td><td class="lc">  Code review           <span class="tk-num">0.5d</span> / <span class="tk-num">1d</span> / <span class="tk-num">2d</span></td></tr>
+          <tr><td class="ln">12</td><td class="lc"></td></tr>
+          <tr><td class="ln">13</td><td class="lc"><span class="tk-cm">// Likely: ~11 days (2.5 weeks)</span></td></tr>
+          <tr><td class="ln">14</td><td class="lc"><span class="tk-cm">// Risk: Stripe sandbox, unclear requirements</span></td></tr>
+          <tr><td class="ln">15</td><td class="lc"><span class="tk-cm">// Flag these&nbsp;never hide them.</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+  <!-- 10 -->
+  <article class="principle flip" id="p10">
+    <div class="p-content" data-num="10">
+      <div class="p-top">
+        <div class="p-badge" style="background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.25)">● 10 / DEBUGGING</div>
+        <h2 class="p-title">Rubber Ducking</h2>
+        <p class="p-body">When you're stuck, explain the problem out loud&nbsp;to a colleague, yourself, or a rubber duck. The act of narrating forces your brain to slow down and confront every assumption one by one. The insight comes from you, not the duck.</p>
+      </div>
+      <div class="p-takeaway">
+        <div class="p-takeaway-icon">⚡</div>
+        <div>
+          <div class="p-takeaway-label">KEY TAKEAWAY</div>
+          <div class="p-takeaway-text">The duck never says a word. Keep something on your desk to talk to&nbsp;it sounds silly until it saves you two hours.</div>
+        </div>
+      </div>
+    </div>
+    <div class="p-code">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot red"></div><div class="code-dot yellow"></div><div class="code-dot green"></div></div>
+        <span class="code-filename">debug.js</span>
+      </div>
+      <div class="code-body">
+        <table class="code-table"><tbody>
+          <tr><td class="ln">1</td><td class="lc"><span class="tk-cm">// You're stuck. Something's wrong.</span></td></tr>
+          <tr><td class="ln">2</td><td class="lc"></td></tr>
+          <tr><td class="ln">3</td><td class="lc"><span class="tk-cm">// Out loud:</span></td></tr>
+          <tr><td class="ln">4</td><td class="lc"><span class="tk-cm">// "So here I fetch the user by ID..."</span></td></tr>
+          <tr><td class="ln">5</td><td class="lc"><span class="tk-cm">// "...then I pass their ID to buildProfile()..."</span></td></tr>
+          <tr><td class="ln">6</td><td class="lc"><span class="tk-cm">// "...wait&nbsp;I'm passing user.id but</span></td></tr>
+          <tr><td class="ln">7</td><td class="lc"><span class="tk-cm">//   the function expects user.profileId.</span></td></tr>
+          <tr><td class="ln">8</td><td class="lc"><span class="tk-cm">//   Those aren't the same field."</span></td></tr>
+          <tr><td class="ln">9</td><td class="lc"></td></tr>
+          <tr><td class="ln">10</td><td class="lc"><span class="tk-cm">// Fixed.</span></td></tr>
+          <tr><td class="ln">11</td><td class="lc"></td></tr>
+          <tr><td class="ln">12</td><td class="lc"><span class="tk-cm">// The duck didn't say a word.</span></td></tr>
+          <tr><td class="ln">13</td><td class="lc"><span class="tk-cm">// Explaining forced you to confront</span></td></tr>
+          <tr><td class="ln">14</td><td class="lc"><span class="tk-cm">// every assumption, one by one.</span></td></tr>
+          <tr><td class="ln">15</td><td class="lc"></td></tr>
+          <tr><td class="ln">16</td><td class="lc"><span class="tk-cm">// Keep a duck on your desk. 🦆</span></td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </article>
+
+</div>
+
+<!-- ── Closing ────────────────────────────────────────────────────────────── -->
+<section class="closing" id="closing">
+  <div class="closing-tag">// THE COMMON THREAD</div>
+  <h2 class="closing-title">Deliberate<br>Craftsmanship</h2>
+  <p class="closing-sub">Every principle connects to one idea: writing code you're proud of, every day, whether or not someone is watching.</p>
+
+  <div class="closing-cards">
+    <div class="closing-card">
+      <div class="cc-num">01&nbsp;02</div>
+      <div class="cc-title">Care</div>
+      <div class="cc-body">Own your output. Quality is not optional. One source of truth.</div>
+    </div>
+    <div class="closing-card">
+      <div class="cc-num">03&nbsp;05</div>
+      <div class="cc-title">Clarity</div>
+      <div class="cc-body">Separate concerns. Ship early. Fix rot before it spreads.</div>
+    </div>
+    <div class="closing-card">
+      <div class="cc-num">06&nbsp;07</div>
+      <div class="cc-title">Courage</div>
+      <div class="cc-body">Start the change yourself. Master your tools completely.</div>
+    </div>
+    <div class="closing-card">
+      <div class="cc-num">08&nbsp;10</div>
+      <div class="cc-title">Craft</div>
+      <div class="cc-body">Contract your code. Estimate honestly. Talk to a duck.</div>
+    </div>
+  </div>
+
+  <div class="closing-quote">"Good enough is never good enough."&nbsp;The Pragmatic Programmer</div>
+</section>
+
+<script>
+  // Scroll-triggered fade-in
+  const observer = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+  document.querySelectorAll('.principle').forEach(el => observer.observe(el));
+
+  // Active nav pill on scroll
+  const sections = document.querySelectorAll('.principle');
+  const pills = document.querySelectorAll('.nav-pill');
+  const scrollObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        pills.forEach(p => p.classList.toggle('active', p.getAttribute('href') === '#' + id));
+      }
+    });
+  }, { threshold: 0.5 });
+  sections.forEach(s => scrollObs.observe(s));
+</script>
+</body>
+</html>
