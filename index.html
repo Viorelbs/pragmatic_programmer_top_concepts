@@ -714,8 +714,8 @@
           <tr><td class="ln">7</td><td class="lc"></td></tr>
           <tr><td class="ln">8</td><td class="lc"><span class="tk-cm">// Good: you own this code</span></td></tr>
           <tr><td class="ln">9</td><td class="lc"><span class="tk-kw">function</span> <span class="tk-fn">getUser</span>(id) {</td></tr>
-          <tr><td class="ln">10</td><td class="lc">  <span class="tk-kw">if</span> (!Number.<span class="tk-fn">isInteger</span>(id))</td></tr>
-          <tr><td class="ln">11</td><td class="lc">    <span class="tk-kw">throw new</span> Error(<span class="tk-str">"Invalid ID"</span>);</td></tr>
+          <tr><td class="ln">10</td><td class="lc">  <span class="tk-kw">if</span> (!Number.<span class="tk-fn">isInteger</span>(id)) {</td></tr>
+          <tr><td class="ln">11</td><td class="lc">    <span class="tk-kw">throw new</span> Error(<span class="tk-str">"Invalid ID"</span>)};</td></tr>
           <tr><td class="ln">12</td><td class="lc"></td></tr>
           <tr><td class="ln">13</td><td class="lc">  <span class="tk-kw">return</span> db.<span class="tk-fn">query</span>(</td></tr>
           <tr><td class="ln">14</td><td class="lc">    <span class="tk-str">"SELECT * FROM users WHERE id = ?"</span>,</td></tr>
